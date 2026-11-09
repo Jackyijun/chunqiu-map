@@ -117,7 +117,7 @@ def make():
 def merge(GEO, I, draft):
     """并入英文：条目 e{字段}，节点 te / she / de（短名中文为 sh），今省 ne，灭国 nme / pe。"""
     en, lock = i18n.load()
-    us = i18n.units(I, GEO["snaps"], [p["n"] for p in GEO["prov"]], F.FALLS, F.SNAP_SHORT)
+    us = i18n.units(I, GEO["snaps"], [p["n"] for p in GEO["prov"]], F.FALLS, F.SNAP_SHORT, getattr(F, "ALLEGIANCE", {}))
     miss, stale, unreg = i18n.check(us, en, lock)
     if miss or stale or unreg:
         print(f"   英文：缺译 {len(miss)} · 过期 {len(stale)} · 未登记指纹 {len(unreg)}（python tools/i18n.py status 查看）")
@@ -150,15 +150,19 @@ def merge(GEO, I, draft):
             v = ok("misc", f"fall:{y}", fld)
             if v: f[fld + "e"] = v
         falls.append(f)
-    return falls
+    # 共主着色：[[起年, "f" 奉周 / "z" 自立, 依据, 英文依据]]
+    alleg = {}
+    for k, segs in getattr(F, "ALLEGIANCE", {}).items():
+        alleg[k] = [[y, "f" if st == "奉周" else "z", why, ok("misc", f"alleg:{k}:{y}", "n") or ""] for y, st, why in segs]
+    return falls, alleg
 
 
 if __name__ == "__main__":
     draft = "--draft" in sys.argv
     GEO, I = make()
-    falls = merge(GEO, I, draft)
+    falls, alleg = merge(GEO, I, draft)
     DATA = dict(items=I, colors={k: F.STATE_COLORS[k] for k, *_ in F.STATES}, states=[s[0] for s in F.STATES], falls=falls,
-                kinds=getattr(F, "STATE_KIND", {}), p0=getattr(F, "PERIOD0", F.SNAPS[0][0] - 5), playms=getattr(F, "PLAY_MS", 1700))
+                kinds=getattr(F, "STATE_KIND", {}), p0=getattr(F, "PERIOD0", F.SNAPS[0][0] - 5), playms=getattr(F, "PLAY_MS", 1700), alleg=alleg)
     html = open(C.ROOT / "src" / "template.html", encoding="utf8").read()
     html = html.replace("__GEO__", json.dumps(GEO, ensure_ascii=False, separators=(",", ":")))
     html = html.replace("__DATA__", json.dumps(DATA, ensure_ascii=False, separators=(",", ":")))

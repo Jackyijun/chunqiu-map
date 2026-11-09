@@ -12,7 +12,7 @@
     --sea:#D5DCDB; --land:#ECEBE3; --coast:#A9AFAE; --border:#ADAA9A;
     --water:#7F9FB2; --water-fill:#B4C8D2; --range:#9C8F78; --wall:#4A4038; --road:#8C5A3A; --jun:#3B2722;
     --c-battle:#A3473A; --c-pass:#3B3B40; --c-city:#55575E; --c-culture:#2F7470; --c-capital:#1D1E23;
-    --s-op:.52; --s-op-hi:.64;
+    --s-op:.52; --s-op-hi:.64; --hatch:rgba(29,30,35,.32);
     /*__SLIGHT__*/
     --shadow: 0 1px 2px rgba(29,30,35,.07), 0 8px 24px -12px rgba(29,30,35,.22);
     --f-display:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC","SimSun",serif;
@@ -34,7 +34,7 @@
       --sea:#111417; --land:#1C1E22; --coast:#3A4046; --border:#454951;
       --water:#4F7A93; --water-fill:#2A4352; --range:#6E6453; --wall:#C9BBA6; --road:#D39A70; --jun:#F3D2C4;
       --c-battle:#E07A68; --c-pass:#C9C7BF; --c-city:#A6A79F; --c-culture:#5CBAB3; --c-capital:#E7E5DC;
-      --s-op:.34; --s-op-hi:.46;
+      --s-op:.34; --s-op-hi:.46; --hatch:rgba(231,229,220,.26);
       /*__SDARK__*/
       --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
       color-scheme: dark;
@@ -47,7 +47,7 @@
     --sea:#111417; --land:#1C1E22; --coast:#3A4046; --border:#454951;
     --water:#4F7A93; --water-fill:#2A4352; --range:#6E6453; --wall:#C9BBA6; --road:#D39A70; --jun:#F3D2C4;
     --c-battle:#E07A68; --c-pass:#C9C7BF; --c-city:#A6A79F; --c-culture:#5CBAB3; --c-capital:#E7E5DC;
-    --s-op:.34; --s-op-hi:.46;
+    --s-op:.34; --s-op-hi:.46; --hatch:rgba(231,229,220,.26);
     /*__SDARK__*/
     --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
     color-scheme: dark;
@@ -73,6 +73,12 @@
   .seg button:last-child { border-right:0; }
   .seg button:hover { background:var(--paper-2); color:var(--ink); }
   .seg button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+  /* 视野下拉框 */
+  .vsel { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-3); letter-spacing:.1em; }
+  .vsel select { appearance:none; -webkit-appearance:none; background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2383858C'/%3E%3C/svg%3E") no-repeat right 8px center;
+    border:1px solid var(--rule); border-radius:3px; padding:4px 24px 4px 9px; font:inherit; font-family:var(--f-body); font-size:12px; letter-spacing:.06em; color:var(--ink); cursor:pointer; }
+  .vsel select:hover { background-color:var(--paper-2); }
+  html:lang(en) .vsel, html:lang(en) .vsel select { letter-spacing:0; }
   .maponly[hidden] { display:none; }
   .search { position:relative; }
   .search input { width:170px; padding:5px 10px 5px 26px; border:1px solid var(--rule); border-radius:3px; background:var(--ground); font-size:12.5px; }
@@ -148,6 +154,13 @@
   .legend .states button[data-gone="1"] .sq { opacity:.25; }
   .sq { width:11px; height:11px; border-radius:2px; flex:none; background:var(--k); opacity:.85; }
   .sq.tr { background:color-mix(in srgb, var(--k) 55%, transparent); outline:1px dashed color-mix(in srgb, var(--k) 70%, var(--ink)); outline-offset:-1px; }
+  /* 共主着色：奉周 = 周色浅填 + 斜线；自立 = 各国本色 */
+  .sq.fz { background:repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3.4px), color-mix(in srgb, var(--k) 72%, transparent); }
+  .sq.own { background:linear-gradient(90deg, var(--k1) 0 34%, var(--k2) 34% 67%, var(--k3) 67%); }
+  .legend .key { display:none; margin:-3px 0 9px; font-size:11px; line-height:1.45; color:var(--ink-2); }
+  .legend .key[data-on="1"] { display:grid; gap:3px; }
+  .legend .key span { display:flex; align-items:flex-start; gap:6px; }
+  .legend .key .sq { margin-top:2px; }
   .legend .states { max-height:172px; overflow-y:auto; scrollbar-width:thin; }
   .legend ul { list-style:none; margin:0; padding:0; display:grid; gap:0; }
   .legend li button { display:flex; align-items:center; gap:8px; width:100%; padding:2px 4px; background:none; border:0; cursor:pointer; text-align:left; border-radius:2px; font-size:12px; color:var(--ink); }
@@ -284,13 +297,19 @@
     </div>
     <span class="count" id="count"></span>
     <div class="tools">
-      <div class="seg maponly" id="views" role="group" aria-label="视野" data-ta="views">
-        <button data-fit="all" aria-pressed="true" data-t="fit_all">全域</button>
-        <button data-fit="zy" aria-pressed="false" data-t="fit_zy">中原</button>
-        <button data-fit="js" aria-pressed="false" data-t="fit_js">晋秦</button>
-        <button data-fit="ql" aria-pressed="false" data-t="fit_ql">齐鲁</button>
-        <button data-fit="jh" aria-pressed="false" data-t="fit_jh">江汉</button>
-        <button data-fit="wy" aria-pressed="false" data-t="fit_wy">吴越</button>
+      <label class="vsel maponly"><span data-t="views">视野</span>
+        <select id="views" aria-label="视野" data-ta="views">
+          <option value="all" data-t="fit_all">全域</option>
+          <option value="zy" data-t="fit_zy">中原</option>
+          <option value="js" data-t="fit_js">晋秦</option>
+          <option value="ql" data-t="fit_ql">齐鲁</option>
+          <option value="jh" data-t="fit_jh">江汉</option>
+          <option value="wy" data-t="fit_wy">吴越</option>
+        </select>
+      </label>
+      <div class="seg maponly" id="colorby" role="group" aria-label="着色" data-ta="cb">
+        <button data-cb="st" aria-pressed="true" data-t="cb_st" data-tt="cb_st_t">诸侯</button>
+        <button data-cb="gz" aria-pressed="false" data-t="cb_gz" data-tt="cb_gz_t">共主</button>
       </div>
       <label class="search">
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="5" cy="5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.8 7.8 11 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -330,6 +349,7 @@
         <h2><span data-t="legend">图例</span><button id="legtoggle" aria-expanded="true">收起</button></h2>
         <div class="body" id="legbody">
           <div class="states" id="legstates"></div>
+          <div class="key" id="legkey"></div>
           <ul id="legend"></ul>
           <div class="foot" data-t="foot"></div>
         </div>
@@ -369,8 +389,12 @@
       playaxis: "播放时间轴", play: "播放", pause: "暂停", years: "年代", speed: "倍速（1× / 2×）",
       prev: "上一个节点", next: "下一个节点", prev_k: "上一个节点（←）", next_k: "下一个节点（→）",
       zin: "放大", zout: "缩小", reset: "复位", legend: "图例", hide: "收起", show: "展开", inset: "索引图", inset_cap: "索引",
-      foot: "疆域据《左传》《史记》与谭其骧《中国历史地图集》第一册春秋图大意推定，边界为示意；淡色虚线为戎狄部族；不单独画出的小国并入邻近大国；战役只显示本期（上一节点之后至本节点）。点击国名、地名、河流、山脉均可查看说明。",
+      foot: "疆域据《左传》《史记》与谭其骧《中国历史地图集》第一册春秋图大意推定，边界为示意；淡色虚线为戎狄部族；不单独画出的小国并入邻近大国；战役只显示本期（上一节点之后至本节点）。「共主」着色：受周封爵、未称王者为奉周（周色加斜线），称王或不在周的封建之内者为自立（本色）；楚称王后曾向周王进贡受赐，前671—前607 也算奉周。点击国名、地名、河流、山脉均可查看说明。",
       count: (y, n, m) => `${y} · ${n} 国 · 视野内 ${m} 处地点`, tribe: "部族", notYet: "尚未立国",
+      cb: "着色", cb_st: "诸侯", cb_gz: "共主", cb_st_t: "按诸侯着色：各国本色", cb_gz_t: "按共主着色：奉周王为共主的诸侯同用周色",
+      kWj: "周王畿", kFz: "奉周：名义属周，实各自治", kZl: "自立：本色（称王，或不在周的封建之内）", kTr: "虚线：戎狄部族",
+      sWj: "王畿", sFz: "奉周", sZl: "自立",
+      countGz: (y, f, z, m) => `${y} · 奉周 ${f} 国 · 自立 ${z} 国 · 视野内 ${m} 处地点`,
       thisPeriod: "本期战役", outside: "诸夏以外", alive: c => `存 · 都${c}`, gone: "已亡",
       capOf: k => `${k}都`, capNow: " · 时为国都", cmd: "主将", notBuilt: "（尚未修筑）", abandoned: y => `（${y} 前后废弃）`,
       junSet: y => `${y} 置`, junCore: "京畿", junSeat: z => ` 郡治 ${z}`, junNot: y => `（${y} 尚未设置或不在秦境）`, seatShort: z => "治 " + z,
@@ -389,8 +413,12 @@
       playaxis: "Play the timeline", play: "Play", pause: "Pause", years: "Years", speed: "Playback speed (1× / 2×)",
       prev: "Previous node", next: "Next node", prev_k: "Previous node (←)", next_k: "Next node (→)",
       zin: "Zoom in", zout: "Zoom out", reset: "Reset", legend: "Legend", hide: "Hide", show: "Show", inset: "Locator map", inset_cap: "Locator",
-      foot: "Territories are reconstructed from the Zuozhuan, the Shiji and the general outline of the Spring and Autumn maps in Tan Qixiang's Historical Atlas of China, vol. 1; boundaries are schematic. Pale dashed areas are Rong and Di tribal peoples; small states not drawn separately are merged into a larger neighbour. Battles are shown for the current period only (after the previous node, up to this one). Click any state, place, river or mountain range for notes.",
+      foot: "Territories are reconstructed from the Zuozhuan, the Shiji and the general outline of the Spring and Autumn maps in Tan Qixiang's Historical Atlas of China, vol. 1; boundaries are schematic. Pale dashed areas are Rong and Di tribal peoples; small states not drawn separately are merged into a larger neighbour. Battles are shown for the current period only (after the previous node, up to this one). In Suzerain colouring, states enfeoffed by Zhou that have not claimed kingship acknowledge Zhou (Zhou colour, hatched); states that claim kingship or stand outside the Zhou feudal order are independent (own colour). Chu, after claiming kingship, sent tribute to the Zhou king and received his gifts, so it also counts as acknowledging Zhou from 671 to 607 BC. Click any state, place, river or mountain range for notes.",
       count: (y, n, m) => `${y} · ${n} states · ${m} places in view`, tribe: "tribal people", notYet: "not yet founded",
+      cb: "Colouring", cb_st: "States", cb_gz: "Suzerain", cb_st_t: "Colour by state: each state in its own colour", cb_gz_t: "Colour by suzerain: states that acknowledge the Zhou king as suzerain share the Zhou colour",
+      kWj: "Zhou royal domain", kFz: "Acknowledges Zhou: nominally under Zhou, self-governing in practice", kZl: "Independent: own colour (claims kingship, or stands outside the Zhou feudal order)", kTr: "Dashed: Rong and Di tribal peoples",
+      sWj: "royal domain", sFz: "acknowledges Zhou", sZl: "independent",
+      countGz: (y, f, z, m) => `${y} · ${f} states acknowledge Zhou · ${z} independent · ${m} places in view`,
       thisPeriod: "Battles this period", outside: "outside the Zhou states", alive: c => `extant · capital ${c}`, gone: "fallen",
       capOf: k => `${k} capital`, capNow: " · capital at this time", cmd: "Commanders", notBuilt: " (not yet built)", abandoned: y => ` (abandoned c. ${y})`,
       junSet: y => `est. ${y}`, junCore: "capital region", junSeat: z => ` · seat ${z}`, junNot: y => ` (not yet established in ${y}, or outside Qin)`, seatShort: z => "seat: " + z,
@@ -412,6 +440,20 @@
   /* ---------------- 工具 ---------------- */
   const yr = y => EN() ? (y < 0 ? (-y) + " BC" : "AD " + y) : (y < 0 ? "前" + (-y) : "" + y);
   const sVar = k => `var(--s-${STATES.indexOf(k)})`;
+  // 着色：st 诸侯（各国本色）/ gz 共主（奉周者同用周色加斜线）
+  let colorBy = "st";
+  const GZ = () => colorBy === "gz";
+  const AL = DATA.alleg || {};
+  // 共主着色下的归属：wj 王畿 / fz 奉周 / zl 自立 / tr 部族；附起年与依据
+  function allegAt(k, y) {
+    if (k === "周") return { s: "wj" };
+    if (isTribe(k)) return { s: "tr" };
+    let r = { s: "fz" };
+    for (const [y0, s, why, whye] of AL[k] || []) if (y >= y0) r = { s: s === "f" ? "fz" : "zl", y0, why, whye };
+    return r;
+  }
+  const fillVar = (k, y) => GZ() && ["wj", "fz"].includes(allegAt(k, y).s) ? sVar("周") : sVar(k);
+  const swatch = (k, y) => `<span class="sq${isTribe(k) ? " tr" : ""}${GZ() && allegAt(k, y).s === "fz" ? " fz" : ""}" style="--k:${fillVar(k, y)}"></span>`;
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const norm = s => String(s || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
   const parseTL = s => s.split(";").map(p => { const [t, o] = p.split(":"); return [+t, o || null]; });
@@ -494,6 +536,10 @@
   const defs = el("defs");
   const gGeo = el("g"), gMark = el("g");
   svg.append(defs, gGeo, gMark);
+  // 斜线纹：图案在地图坐标里，每次渲染按缩放倍数换算，屏幕上间距不变
+  const hatch = el("pattern", { id: "hatch", patternUnits: "userSpaceOnUse", width: 6, height: 6, patternTransform: "rotate(45)" });
+  const hatchLine = el("line", { x1: 0, y1: 0, x2: 0, y2: 6, style: "stroke:var(--hatch)", "stroke-width": 1.1 });
+  hatch.append(hatchLine); defs.append(hatch);
   const layer = id => { const g = el("g", { id: "L-" + id }); gGeo.append(g); return g; };
   const lLand = layer("land"), lState = layer("state"), lJun = layer("jun"), lWater = layer("water"), lProv = layer("prov"),
         lRange = layer("range"), lRiver = layer("river"), lRoad = layer("road"), lWall = layer("wall"), lHit = layer("hit");
@@ -612,19 +658,25 @@
     lState.replaceChildren();
     const sn = SNAPS[si];
     stateLabels = [];
+    const Y = sn.y;
     for (const k of STATES) {
       const rings = sn.s[k]; if (!rings) continue;
       const d = rings.map(r => P(decode(r), true)).join(" ");
       const it = stateItem[k];
       const on = selected === it.i || hovered === it.i;
       const tr = isTribe(k);          // 戎狄部族：填充乘 0.62，虚线边
+      const fz = GZ() && allegAt(k, Y).s === "fz", fv = fillVar(k, Y);   // 共主着色：奉周诸侯用周色浅填，国界细线
       lState.append(el("path", {
         d, class: "state-shape", "data-i": it.i, "fill-rule": "evenodd",
-        style: `fill:${sVar(k)};fill-opacity:calc(${on ? "var(--s-op-hi)" : "var(--s-op)"} * ${tr ? .62 : 1});stroke:color-mix(in srgb, ${sVar(k)} 72%, var(--ink));stroke-width:${on ? 2.4 : 1.1}px;stroke-opacity:.9` + (tr ? ";stroke-dasharray:5 3" : ""),
+        style: `fill:${fv};fill-opacity:calc(${on ? "var(--s-op-hi)" : "var(--s-op)"} * ${tr ? .62 : fz ? .72 : 1});stroke:color-mix(in srgb, ${fv} 72%, var(--ink));stroke-width:${on ? 2.4 : fz ? .7 : 1.1}px;stroke-opacity:.9` + (tr ? ";stroke-dasharray:5 3" : ""),
         "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round"
       }));
+      if (fz) lState.append(el("path", { d, "fill-rule": "evenodd", fill: "url(#hatch)", "pointer-events": "none" }));
       for (const [lo, la, n, r] of (sn.l[k] || [])) stateLabels.push({ k, it, xy: proj(lo, la), n, r });
     }
+    // 共主着色：王畿与奉周诸侯合成的「周天下」外缘
+    if (GZ() && sn.w) lState.append(el("path", { d: sn.w.map(r => P(decode(r), true)).join(" "), fill: "none", style: `stroke:color-mix(in srgb, ${sVar("周")} 45%, var(--ink))`,
+      "stroke-width": 2.2, "stroke-opacity": .85, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round", "pointer-events": "none" }));
     lState.setAttribute("display", layerOn.territory ? "inline" : "none");
     // 秦郡界
     lJun.replaceChildren();
@@ -740,6 +792,8 @@
   const tip = document.getElementById("tip");
   function render() {
     gGeo.setAttribute("transform", `translate(${W / 2} ${H / 2}) scale(${view.k}) translate(${-view.cx} ${-view.cy})`);
+    const hs = 6 / view.k;
+    hatch.setAttribute("width", hs); hatch.setAttribute("height", hs); hatchLine.setAttribute("y2", hs); hatchLine.setAttribute("stroke-width", 1.1 / view.k);
     gMark.replaceChildren();
     const Y = snapY();
     const obstacles = [], items = [];
@@ -885,7 +939,7 @@
         const k = it.L.k;
         const two = it.lines.length > 1;
         it.lines.forEach((ln, li) => txt({ class: "map-text lbl-state", x: X, y: Yy + it.size * .36 + (two ? (li - .5) * it.size * 1.08 : 0), "text-anchor": "middle", "font-size": it.size, "letter-spacing": (!EN() && it.text.length > 1 ? it.size * .35 : 0) + "px",
-          style: `fill:color-mix(in srgb, ${sVar(k)} 45%, var(--ink))`, opacity: isTribe(k) ? .78 : .92, ...(isTribe(k) ? { "font-style": "italic" } : {}), stroke: "var(--land)", "stroke-width": 3, "stroke-opacity": .55, "paint-order": "stroke", "stroke-linejoin": "round" }, ln));
+          style: `fill:color-mix(in srgb, ${fillVar(k, Y)} 45%, var(--ink))`, opacity: isTribe(k) ? .78 : .92, ...(isTribe(k) ? { "font-style": "italic" } : {}), stroke: "var(--land)", "stroke-width": 3, "stroke-opacity": .55, "paint-order": "stroke", "stroke-linejoin": "round" }, ln));
       } else if (it.kind === "river") {
         txt({ class: "map-text lbl-riv", x: X, y: Yy + 4, "text-anchor": "middle", "font-size": it.size, fill: "var(--water)", ...halo, "font-weight": it.on ? 700 : 500 }, it.text);
       } else if (it.kind === "range") {
@@ -925,8 +979,9 @@
     for (const [e, y] of canalEls) e.setAttribute("display", y > Y ? "none" : "inline");
 
     drawInsetRect(); drawScale();
-    const live = STATES.filter(k => SNAPS[si].s[k] && !isTribe(k)).length;
-    document.getElementById("count").textContent = t("count")(yr(Y), live, nShown);
+    const live = STATES.filter(k => SNAPS[si].s[k] && !isTribe(k));
+    const nF = live.filter(k => allegAt(k, Y).s === "fz").length;
+    document.getElementById("count").textContent = GZ() ? t("countGz")(yr(Y), nF, live.length - 1 - nF, nShown) : t("count")(yr(Y), live.length, nShown);
   }
 
   /* ---------------- 比例尺 ---------------- */
@@ -1053,7 +1108,13 @@
       const cap = ITEMS.find(c => c.c === "capital" && c.st === it.k && c.y0 <= Y && Y < c.y1);
       const gone = SNAPS.slice(0, si).some(s => s.s[it.k]) ? t("gone") : t("notYet");
       if (isTribe(it.k)) return `<span class="mono">${yr(Y)}</span>${t("tribe")}` + (alive ? "" : " · " + gone);
-      return `<span class="mono">${yr(Y)}</span>` + (alive ? esc(t("alive")(cap ? N(cap) : "—")) : gone);
+      let gz = "";
+      if (GZ() && alive) {
+        const a = allegAt(it.k, Y);
+        gz = `<br><span class="tag">${t(a.s === "wj" ? "sWj" : a.s === "fz" ? "sFz" : "sZl")}</span>` +
+          (a.why ? (a.y0 > -9000 ? `<span class="mono">${yr(a.y0)}</span>` : "") + esc(EN() && a.whye ? a.whye : a.why) : "");
+      }
+      return `<span class="mono">${yr(Y)}</span>` + (alive ? esc(t("alive")(cap ? N(cap) : "—")) : gone) + gz;
     }
     if (it.c === "capital") return `<span class="tag st" style="--k:${sVar(it.st)}">${esc(t("capOf")(SN(it.st)))}</span><span class="mono">${yr(it.y0)} – ${yr(it.y1)}</span>` + (it.y0 <= Y && Y < it.y1 ? t("capNow") : "");
     if (it.c === "battle") return `<span class="mono">${esc(YT(it))}</span>${esc(pick(it, "sides"))}` + (it.cmd && it.cmd !== "—" ? `<br><span class="mono">${t("cmd")}</span>${esc(pick(it, "cmd"))}` : "");
@@ -1205,12 +1266,18 @@
     const fellNow = new Set(FALLS.filter(f => f.y > prevY() && f.y <= snapY()).map(f => f.k));
     const keys = STATES.filter(k => SNAPS[si].s[k] || (fellNow.has(k) && si > 0 && SNAPS[si - 1].s[k]));
     keys.sort((a, b) => isTribe(a) - isTribe(b));
+    const key = document.getElementById("legkey");
+    key.dataset.on = GZ() ? "1" : "0";
+    key.innerHTML = !GZ() ? "" : [
+      [`<i class="sq" style="--k:${sVar("周")}"></i>`, t("kWj")], [`<i class="sq fz" style="--k:${sVar("周")}"></i>`, t("kFz")],
+      [`<i class="sq own" style="--k1:${sVar("楚")};--k2:${sVar("吴")};--k3:${sVar("越")}"></i>`, t("kZl")], [`<i class="sq tr" style="--k:${sVar("赤狄")}"></i>`, t("kTr")]
+    ].map(([s, x]) => `<span>${s}${esc(x)}</span>`).join("");
     for (const k of keys) {
       const b = document.createElement("button");
       const alive = !!SNAPS[si].s[k];
       b.dataset.gone = alive ? "0" : "1";
       const nm = EN() ? (SNAPS[si].labe?.[k] || SN(k)) : (SNAPS[si].lab?.[k] || stateItem[k].old.replace("（王畿）", ""));
-      b.innerHTML = `<span class="sq${isTribe(k) ? " tr" : ""}" style="--k:${sVar(k)}"></span>${esc(nm)}`;
+      b.innerHTML = swatch(k, snapY()) + esc(nm);
       b.title = alive ? t("legClick")(N(stateItem[k])) : t("legGone")(N(stateItem[k]), yr(snapY()));
       b.addEventListener("click", () => select(stateItem[k].i, false));
       b.addEventListener("mouseenter", () => { hovered = stateItem[k].i; buildStates(); render(); });
@@ -1292,7 +1359,7 @@
         if (it.c === "jun" && !junLive(it, Y)) b.dataset.future = "1";
         if (it.c === "battle" && !inPeriod(it)) b.dataset.future = "1";
         if (it.c === "state" && !SNAPS[si].s[it.k]) b.dataset.future = "1";
-        const sw = it.c === "state" ? `<span class="sq" style="--k:${sVar(it.k)}"></span>` : "";
+        const sw = it.c === "state" ? swatch(it.k, Y) : "";
         const meta = metaHTML(it, Y, false);
         const note = it.c === "state" ? esc(NT(it)).replace(/\n/g, "<br>") : esc(NT(it));
         b.innerHTML = `<span class="o">${sw}${esc(N(it))}${ZH(it)}</span><span class="m">${esc(M(it))}</span>` +
@@ -1364,11 +1431,12 @@
   }
 
   /* ---------------- 控件 ---------------- */
-  document.getElementById("views").addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b) return;
-    activeFit = b.dataset.fit;
-    document.querySelectorAll("#views button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-    fitTo(activeFit, true);
+  document.getElementById("views").addEventListener("change", e => { activeFit = e.target.value; fitTo(activeFit, true); });
+  document.getElementById("colorby").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || b.dataset.cb === colorBy) return;
+    colorBy = b.dataset.cb;
+    document.querySelectorAll("#colorby button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    buildLegendStates(); buildStates(); render(); buildIndex();
   });
   document.getElementById("zin").addEventListener("click", () => setView(view.cx, view.cy, view.k * 1.6, true));
   document.getElementById("zout").addEventListener("click", () => setView(view.cx, view.cy, view.k / 1.6, true));

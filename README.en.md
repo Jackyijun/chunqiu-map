@@ -104,7 +104,7 @@ chunqiu-map/
 └── build/                 intermediate files (safe to delete)
 ```
 
-`build.py`, `assemble.py` and `i18n.py` in `src/` are identical to the files of the same name in the Warring States repository; `template.html` differs only in its title, views, legend footnote and similar text.
+The files in `src/` derive from those of the same name in the Warring States repository, and the territory algorithm is identical. This map additionally has two colourings, States | Suzerain: `build.py` also computes the outline of the Zhou realm for each node, `assemble.py` also merges `ALLEGIANCE`, and `template.html` adds the colouring buttons and a drop-down for views.
 
 ---
 
@@ -156,6 +156,7 @@ Examples:
 - `content/seeds.txt` is identical in both repositories, and so are the geometry and barrier weights of the mountains and hand-drawn boundary rivers (checked by `COST_SHA`).
 - No line changes owner in 475 BC, so this map's 476 BC node and the Warring States map's 475 BC node use the same points, the same grid and the same ownership: their territory polygons and label positions are byte-for-byte identical.
 - States on both maps (28 of them, including Qin, Chu, Qi, Jin, Zheng, Wu and Yue) have the same key and the same colour: their light and dark values in `STATE_COLORS` in `features.py` are identical.
+- The continuity applies to States colouring. Suzerain colouring exists only on this map, not on the Warring States map.
 - When you change `seeds.txt` or the mountains and boundary rivers on one map, make the same change on the other and rebuild both.
 
 ### 5. What is in `features.py`
@@ -164,6 +165,7 @@ Examples:
 |---|---|
 | `STATES` · `STATE_COLORS` | Clan names and profiles of the 67 states and tribal peoples, and light / dark territory colours |
 | `STATE_KIND` · `STATE_ALIAS` | Tribal peoples (pale fill, dashed edge, not counted as states); period aliases (Zhongshan labelled "Xianyu" before 506 BC; the Rong of the Yi and Luo labelled "Luhun Rong" from 638 BC) |
+| `ALLEGIANCE` | Suzerain colouring: which states are independent and from which year, with the grounds (Chu claims kingship in 704 BC, sends tribute and receives sacrificial meat in 671 BC, asks about the tripods in 606 BC; Wu claims kingship in 585 BC; Yue, Shu and others stand outside the Zhou feudal order, and the rulers of Xu style themselves king). States not listed acknowledge Zhou |
 | `SNAPS` · `SNAP_SHORT` | 46 time nodes (772 BC is the opening node): year, title, a summary; the short labels set vertically on the timeline |
 | `FIRST` · `PERIOD0` · `PLAY_MS` | The node shown first (632 BC), the start of the first node's period (781 BC, accession of King You), playback interval |
 | `CAPITALS` | 91 capitals with start and end years (former capitals are shown as dashed squares) |
@@ -182,6 +184,8 @@ Examples:
 - Tribal peoples have pale, dash-edged territories and italic labels and are not counted in the header.
 - The legend lists only the states alive in this period and those that fell in it (struck through), tribal peoples last.
 - Zoom levels: the full view shows only state names, capitals and battles; passes, major cities, towns and modern names appear as you zoom in.
+- Two colourings, switched in the header: **States** (each state in its own colour, the default) and **Suzerain**. In Suzerain colouring the Zhou royal domain takes the Zhou colour; states enfeoffed by Zhou that have not claimed kingship acknowledge Zhou and take a paler Zhou colour with hatching (nominally under Zhou, self-governing in practice); states that claim kingship or stand outside the Zhou feudal order are independent and keep their own colours; Chu, after claiming kingship, sent tribute to the Zhou king and received his gifts, so it also counts as acknowledging Zhou from 671 to 607 BC; tribal peoples are unchanged. A heavy line traces the outline of the Zhou realm formed by the royal domain and the states that acknowledge Zhou.
+- Views are chosen from a drop-down (All, Central Plains, Jin & Qin, Qi & Lu, Jiang–Han, Wu & Yue).
 
 ---
 
@@ -195,6 +199,7 @@ Examples:
 | Change descriptive text | the notes and node summaries in `features.py` | `python run.py --html` (it will report the matching English as out of date; see the next section) |
 | Change the English | `content/en/*.json` | `python tools/i18n.py lock` → `python run.py --html` |
 | Change colours | `STATE_COLORS`; for states on both maps, change the Warring States map too | `python run.py --html` |
+| Change allegiances in Suzerain colouring | `ALLEGIANCE` (add the English if you change the grounds) | `python run.py` |
 | Change interface text | `U` in `src/template.html` (`zh` and `en` sets) | `python run.py --html` |
 
 ---

@@ -167,6 +167,33 @@ print("labelled")
 # ---------- 快照 ----------
 STATE_KEYS = [s[0] for s in F.STATES]
 SN = []
+ALLEG = getattr(F, "ALLEGIANCE", None)      # 有它才画共主着色的「周天下」外缘
+KIND = getattr(F, "STATE_KIND", {})
+
+
+def under_zhou(k, y):
+    """共主着色：王畿或奉周（部族、自立都不算）。"""
+    if k == "周": return True
+    if KIND.get(k) == "tribe": return False
+    st = "奉周"
+    for y0, s, _ in ALLEG.get(k, []):
+        if y >= y0: st = s
+    return st == "奉周"
+
+
+def mask_rings(m):
+    sm = ndimage.gaussian_filter(m.astype(float), C.SMOOTH_SIGMA)
+    pad = np.pad(sm, 1)
+    rings = []
+    for cnt in measure.find_contours(pad, 0.5):
+        cnt = cnt - 1
+        pts = [(LON0 + c * RES, LAT0 + r * RES) for r, c in cnt]
+        if len(pts) < 4: continue
+        ls = LineString(pts).simplify(C.POLY_SIMPLIFY)
+        if Polygon(ls.coords).area < C.MIN_RING_AREA: continue
+        rings.append(enc_ring(list(ls.coords)))
+    return rings
+
 for (y, title, desc) in F.SNAPS:
     own = np.array([STATE_KEYS.index(owner(s["tl"], y)) if owner(s["tl"], y) else -1 for s in seeds] + [-1])
     omap = own[partition(y)]
@@ -200,6 +227,9 @@ for (y, title, desc) in F.SNAPS:
             L.append([round(LON0 + c * RES, 2), round(LAT0 + r * RES, 2), int(sizes[j]), round(float(dt.max()) * RES, 2)])
         labs[key] = L
     SN.append(dict(y=y, t=title, d=desc, s=shapes, l=labs))
+    if ALLEG is not None:                    # 周天下：王畿与奉周诸侯合成一片，取外缘
+        ks = [k for k, key in enumerate(STATE_KEYS) if under_zhou(key, y)]
+        SN[-1]["w"] = mask_rings(np.isin(omap, ks))
     print(y, {k: len(v) for k, v in shapes.items()})
 
 # ---------- 秦郡：在秦境内按郡治就近分区 ----------
