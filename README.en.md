@@ -2,7 +2,7 @@
 
 [![中文](https://img.shields.io/badge/lang-%E4%B8%AD%E6%96%87-red.svg)](README.md) [![English](https://img.shields.io/badge/lang-English-blue.svg)](README.en.md)
 
-An interactive historical map of the Spring and Autumn period (770–476 BC): the territories of the states at 45 points in time; 60 states (Zhou, Jin, Chu, Qi, Qin, Lu, Song, Wey, Zheng, Chen, Cai, Cao, Xu, Yan, Wu and Yue, and lesser states such as Guo, Yu, Xing, Ji, Ju, Zhu, Qunshu and Xu) and 7 Rong and Di tribal peoples (Red Di, White Di, Mountain Rong, Western Rong, Rong of the Yi and Luo, Dali Rong, Huai Yi); ancient and modern names for more than 200 capitals, cities, towns and passes; and battles, covenants and cultural events, the Fangcheng wall of Chu and the Long Wall of Qi, canals, mountains and rivers, and the neighbouring peoples. The interface is bilingual: switch with the "中 | EN" control at the top right of the map.
+An interactive historical map of the Spring and Autumn period (770–476 BC): the territories of the states at 46 points in time (opening with 772 BC, the year before Western Zhou fell); 60 states (Zhou, Jin, Chu, Qi, Qin, Lu, Song, Wey, Zheng, Chen, Cai, Cao, Xu, Yan, Wu and Yue, and lesser states such as Guo, Yu, Xing, Ji, Ju, Zhu, Qunshu and Xu) and 7 Rong and Di tribal peoples (Red Di, White Di, Mountain Rong, Western Rong, Rong of the Yi and Luo, Dali Rong, Huai Yi); ancient and modern names for more than 200 capitals, cities, towns and passes; and battles, covenants and cultural events, the Fangcheng wall of Chu and the Long Wall of Qi, canals, mountains and rivers, and the neighbouring peoples. The interface is bilingual: switch with the "中 | EN" control at the top right of the map.
 
 The map runs straight into the [Warring States map](https://jackyijun.github.io/zhanguo-map/): the two share the same ownership points and the same travel-cost grid, so the last node here (476 BC) and the first Warring States node (475 BC) have pixel-identical territories and colours.
 
@@ -78,7 +78,7 @@ chunqiu-map/
 ├── content/               ★ historical content (hand-written; this is what you edit)
 │   ├── seeds.txt          468 ownership points: name, coordinates, which state held it when
 │   │                      (shared with the Warring States map; identical in both repositories)
-│   ├── features.py        state profiles, colours, tribal peoples and aliases; 45 time nodes and their
+│   ├── features.py        state profiles, colours, tribal peoples and aliases; 46 time nodes and their
 │   │                      timeline labels; capitals, battles, passes, major cities, towns, events and
 │   │                      covenants, the Fangcheng and the Qi Long Wall, mountains, rivers, lakes and
 │   │                      marshes, canals, peoples, and the fall of each state
@@ -164,8 +164,8 @@ Examples:
 |---|---|
 | `STATES` · `STATE_COLORS` | Clan names and profiles of the 67 states and tribal peoples, and light / dark territory colours |
 | `STATE_KIND` · `STATE_ALIAS` | Tribal peoples (pale fill, dashed edge, not counted as states); period aliases (Zhongshan labelled "Xianyu" before 506 BC; the Rong of the Yi and Luo labelled "Luhun Rong" from 638 BC) |
-| `SNAPS` · `SNAP_SHORT` | 45 time nodes: year, title, a summary; the short labels set vertically on the timeline |
-| `FIRST` · `PERIOD0` · `PLAY_MS` | The node shown first (632 BC), the start of the first node's period, playback interval |
+| `SNAPS` · `SNAP_SHORT` | 46 time nodes (772 BC is the opening node): year, title, a summary; the short labels set vertically on the timeline |
+| `FIRST` · `PERIOD0` · `PLAY_MS` | The node shown first (632 BC), the start of the first node's period (781 BC, accession of King You), playback interval |
 | `CAPITALS` | 91 capitals with start and end years (former capitals are shown as dashed squares) |
 | `BATTLES` | 64 battles: year, outcome, commanders, course of events |
 | `PASSES` · `CITIES` · `TOWNS` | Passes and fords, major cities, towns |
