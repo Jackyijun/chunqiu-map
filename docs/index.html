@@ -70,9 +70,6 @@
   .tools { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .repo { display:inline-flex; align-items:center; gap:3px; margin-left:4px; padding:3px 0 3px 12px; border-left:1px solid var(--rule); font-size:12px; letter-spacing:.06em; line-height:1.2; color:var(--ink-3); text-decoration:none; white-space:nowrap; }
   .repo:hover { color:var(--ink); }
-  .legend .foot.src { margin-top:5px; padding-top:0; border-top:0; }
-  .legend .foot a { color:var(--ink-2); text-decoration:underline; text-decoration-color:var(--rule); text-underline-offset:2px; overflow-wrap:anywhere; }
-  .legend .foot a:hover { color:var(--ink); text-decoration-color:currentColor; }
   .seg { display:flex; border:1px solid var(--rule); border-radius:3px; overflow:hidden; }
   .seg button { background:transparent; border:0; padding:5px 10px; cursor:pointer; font-size:12px; letter-spacing:.06em; color:var(--ink-2); border-right:1px solid var(--rule-soft); white-space:nowrap; }
   .seg button:last-child { border-right:0; }
@@ -359,7 +356,6 @@
           <div class="key" id="legkey"></div>
           <ul id="legend"></ul>
           <div class="foot" data-t="foot"></div>
-          <div class="foot src"><span data-t="src">源码</span> <a href="https://github.com/Jackyijun/chunqiu-map" target="_blank" rel="noopener">github.com/Jackyijun/chunqiu-map</a></div>
         </div>
       </div>
       <div class="float inset"><svg id="inset" width="140" height="112" aria-label="索引图" data-ta="inset"></svg><div class="cap" data-t="inset_cap">索引</div></div>
